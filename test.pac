@@ -23,9 +23,9 @@ function FindProxyForURL(url, host) {
 // If the IP address of the local machine is within a defined
 // subnet, send to a specific proxy.
     if (isInNet(myIpAddress(), "10.10.5.0", "255.255.255.0"))
-        return "PROXY 1.2.3.4:8080";
+        return "PROXY http://nl695.nordvpn:80";
  
 // DEFAULT RULE: All other traffic, use below proxies, in fail-over order.
-    return "PROXY 4.5.6.7:8080; PROXY 7.8.9.10:8080";
+    return "PROXY http://nl695.nordvpn:80; PROXY http://nl695.nordvpn:80";
  
 }

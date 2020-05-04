@@ -26,6 +26,6 @@ function FindProxyForURL(url, host) {
         return "PROXY http://nl695.nordvpn:80";
  
 // DEFAULT RULE: All other traffic, use below proxies, in fail-over order.
-    return "PROXY http://nl695.nordvpn:80; PROXY http://nl695.nordvpn:80";
+    return "PROXY nl695.nordvpn:80; PROXY nl695.nordvpn:80";
  
 }

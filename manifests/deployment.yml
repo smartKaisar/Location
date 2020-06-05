@@ -1,0 +1,16 @@
+apiVersion : apps/v1beta1
+kind: Deployment
+metadata:
+  name: "githubtest"
+spec:
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: "githubtest"
+    spec:
+      containers:
+        - name: "githubtest"
+          image: "learndeployreg.azurecr.io/githubtest"
+          ports:
+          - containerPort: 8080

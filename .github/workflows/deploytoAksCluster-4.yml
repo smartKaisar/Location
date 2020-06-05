@@ -1,0 +1,50 @@
+on: [push]
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    
+    - uses: azure/docker-login@v1
+      with:
+        login-server: githubtest.azurecr.io
+        username: ${{ secrets.acr_githubtest_username }}
+        password: ${{ secrets.acr_githubtest_password }}
+    
+    - name: Build and push image to ACR
+      id: build-image
+      run: |
+        docker build "$GITHUB_WORKSPACE/" -f  "Dockerfile" -t githubtest.azurecr.io/githubtest:${{ github.sha }}
+        docker push githubtest.azurecr.io/githubtest:${{ github.sha }}
+    
+    - uses: azure/k8s-set-context@v1
+      with:
+         kubeconfig: ${{ secrets.aks_githubtest_kubeConfig }}
+      id: login
+    
+    - name: Create namespace
+      run: |
+        namespacePresent=`kubectl get namespace | grep githubtest380d | wc -l`
+        if [ $namespacePresent -eq 0 ]
+        then
+            echo `kubectl create namespace githubtest380d`
+        fi
+
+    - uses: azure/k8s-create-secret@v1
+      with:
+        namespace: githubtest380d
+        container-registry-url: githubtest.azurecr.io
+        container-registry-username: ${{ secrets.acr_githubtest_username }}
+        container-registry-password: ${{ secrets.acr_githubtest_password }}
+        secret-name: githubtestdockerauth
+       
+    - uses: azure/k8s-deploy@v1
+      with:
+        namespace: githubtest380d
+        manifests: |
+          manifests/deployment-4.yml
+          manifests/service-4.yml
+        images: |
+          githubtest.azurecr.io/githubtest:${{ github.sha }}
+        imagepullsecrets: |
+          githubtestdockerauth
